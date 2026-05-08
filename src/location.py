@@ -2,6 +2,7 @@ from __future__ import annotations
 from abc import ABC #for abstract class
 from item import Item
 from npc import NPC
+from direction import Direction
 
 
 class Location(ABC):# this means we cannot make instance from this class
@@ -152,7 +153,7 @@ class Location(ABC):# this means we cannot make instance from this class
         """Returns the description of the location."""
         return self._description
 
-    def get_exit(self, direction: Direction) -> Optional["Location"]:
+    def get_exit(self, direction: Direction) -> Location | None:
         """
         Returns the exit in a given direction.
 
@@ -161,7 +162,7 @@ class Location(ABC):# this means we cannot make instance from this class
         """
         return self._exits.get(direction)
 
-    def get_ground_items(self) -> List[Item]:
+    def get_ground_items(self) -> list[Item]:
         """
         Returns a copy of the list of items on the ground.
 
@@ -169,7 +170,7 @@ class Location(ABC):# this means we cannot make instance from this class
         """
         return list(self._ground_items)  # return copy
 
-    def get_characters(self) -> List[NPC]:
+    def get_characters(self) -> list[NPC]:
         """
         Returns a copy of the list of characters in this location.
 
@@ -188,34 +189,10 @@ class Location(ABC):# this means we cannot make instance from this class
     # Display helpers
 
     def show_ground_items(self) -> str:
-        """
-        Returns a formatted string listing all items on the ground.
-
-        :return: a string containing ground item names
-        """
-        ans = ""
-        for item in self._ground_items:
-            ans += item.get_name() + "\n"
-        return ans
+        return "\n".join(item.get_name() for item in self._ground_items)
 
     def show_characters(self) -> str:
-        """
-        Returns a formatted string listing all characters in the location.
-
-        :return: a string containing character names
-        """
-        ans = ""
-        for npc in self._npcs:
-            ans += npc.get_name() + "\n"
-        return ans
+        return "\n".join(npc.get_name() for npc in self._npcs)
 
     def show_exits(self) -> str:
-        """
-        Returns a formatted string listing all exits from this location.
-
-        :return: a string containing exits and their destinations
-        """
-        ans = ""
-        for direction, dest in self._exits.items():
-            ans += direction.name + " -> " + dest.get_name() + "\n"
-        return ans
+        return "\n".join(f"{d.name} -> {dest.get_name()}" for d, dest in self._exits.items())

@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Set
+
 
 from inventory import Inventory
 from language import Language
@@ -27,9 +27,8 @@ class Player:
         self._time_remaining: int = 30 
 
         # player can only interact with people knowing English and Spanish
-        self._languages: Set[Language] = set()
-        self._languages.add(Language.ENGLISH)
-        self._languages.add(Language.SPANISH)
+        self._languages: set[Language] = set()
+        self._languages: set[Language] = {Language.ENGLISH, Language.SPANISH}
 
         self._inventory: Inventory = Inventory()
 
@@ -71,6 +70,9 @@ class Player:
 
 
 
+    # Note: explicit getters and setters are more common in Java.
+    # However, they are kept here intentionally to enforce encapsulation.
+
     # Getters
 
     def get_current_location(self) -> Location:
@@ -81,7 +83,7 @@ class Player:
         """Returns the player's remaining time."""
         return self._time_remaining
 
-    def get_languages(self) -> Set[Language]:
+    def get_languages(self) -> set[Language]:
         """
         Returns a copy of the languages the player understands.
 
@@ -98,6 +100,6 @@ class Player:
         """
         Sets the player's remaining time.
 
-        :param time_remaining: the new remaining time
+        param time_remaining: the new remaining time
         """
         self._time_remaining = time_remaining

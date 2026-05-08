@@ -25,7 +25,7 @@ class Item(ABC):
         self._description = description
 
     @abstractmethod
-    def use(self, player: "Player") -> bool:
+    def use(self, player: Player) -> bool:
         """
         Uses the item.
 
@@ -35,9 +35,11 @@ class Item(ABC):
         :param player: the player using the item
         :return: True if the item had an effect, False otherwise
         """
-        pass
 
-    # Getters
+    # Note: explicit getters are more common in Java.
+    # In Python, @property is preferred. They are kept here intentionally
+    # to enforce encapsulation in the style of this project.
+
     def get_name(self) -> str:
         """Returns the name of the item."""
         return self._name

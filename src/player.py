@@ -21,10 +21,10 @@ class Player:
         The player starts with a fixed amount of time and
         understands English and Spanish by default.
 
-        :param start_location: the starting location of the player
+        param start_location: the starting location of the player
         """
         self._current_location: Location = start_location
-        self._time_remaining: int = 30
+        self._time_remaining: int = 30 
 
         # player can only interact with people knowing English and Spanish
         self._languages: Set[Language] = set()
@@ -50,11 +50,10 @@ class Player:
         If the player leaves a location that was unlocked temporarily,
         that location will be re-locked automatically.
 
-        :param next_location: the next location to move to
+        param next_location: the next location to move to
         """
         # If leaving a temporarily unlocked location, re-lock it
-        if (self._current_location is not None
-                and self._current_location.is_temporarily_unlocked()):
+        if self._current_location.is_temporarily_unlocked():
             self._current_location.relock()
             print("The door locks behind you.")
 
@@ -65,21 +64,12 @@ class Player:
         """
         Checks whether the player can understand a given language.
 
-        :param language: the language to check
-        :return: True if the player understands the language, False otherwise
+        param language: the language to check
+        return: True if the player understands the language, False otherwise
         """
         return language in self._languages
 
-    # Inventory helper for quicker access
-    def has_item_by_name(self, item_name: str) -> bool:
-        """
-        Checks whether the player has an item with the given name
-        in their inventory.
 
-        :param item_name: the name of the item
-        :return: True if the item exists, False otherwise
-        """
-        return self._inventory.has_item_by_name(item_name)
 
     # Getters
 

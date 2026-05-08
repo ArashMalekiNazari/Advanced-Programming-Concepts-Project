@@ -1,13 +1,11 @@
 from __future__ import annotations
-from abc import ABC
-from typing import Dict, List, Optional
-
-from direction import Direction
+from abc import ABC #for abstract class
 from item import Item
 from npc import NPC
 
 
-class Location(ABC):
+class Location(ABC):# this means we cannot make instance from this class
+
     """
     The Location class represents a place in the game world.
 
@@ -19,16 +17,17 @@ class Location(ABC):
         """
         Constructs a Location with the given properties.
 
-        :param name: the name of the location
-        :param description: the description of the location
-        :param locked: whether the location is locked
-        :param dark: whether the location is dark
+        param name: the name of the location
+        param description: the description of the location
+        param locked: whether the location is locked
+        param dark: whether the location is dark
         """
+        #private attributes, we should not touch them outside this class
         self._name = name
         self._description = description
-        self._exits: Dict[Direction, "Location"] = {}
-        self._ground_items: List[Item] = []
-        self._npcs: List[NPC] = []
+        self._exits: dict[Direction, Location] = {}
+        self._ground_items: list[Item] = []
+        self._npcs: list[NPC] = []
         self._dark = dark
         self._locked = locked
         # A temporarily unlocked location will be re-locked automatically
@@ -43,28 +42,33 @@ class Location(ABC):
         """
         Adds an item to the ground of this location.
 
-        :param item: the item to add
+        param item: the item to add
         """
         self._ground_items.append(item)
 
+
+    # since the output of input() is a str, it is better to remove the item by its name not object
     def remove_item_by_name(self, item_name: str) -> None:
         """
         Removes an item from the ground by its name.
 
-        :param item_name: the name of the item to remove
+        param item_name: the name of the item to remove
         """
         target = self.get_item_by_name(item_name)
         if target is not None:
             self._ground_items.remove(target)
 
+
+
+
     # avoid searching by the instance's address and instead search by the name
     # of the item (item is equal to another item if they have the same name)
-    def get_item_by_name(self, item_name: str) -> Optional[Item]:
+    def get_item_by_name(self, item_name: str) -> Item | None:
         """
         Returns an item from the ground by its name.
 
-        :param item_name: the name of the item
-        :return: the matching item, or None if not found
+        param item_name: the name of the item
+        return: the matching item, or None if not found
         """
         for item in self._ground_items:
             if item.get_name().lower() == item_name.lower():
@@ -129,12 +133,12 @@ class Location(ABC):
         return self._temporarily_unlocked
 
     # for connecting locations
-    def set_exit(self, direction: Direction, location: "Location") -> None:
+    def set_exit(self, direction: Direction, location: Location) -> None: #since we are in Location class location: Location would cause error
         """
         Sets an exit from this location in a given direction.
 
-        :param direction: the direction of the exit
-        :param location: the destination location
+        param direction: the direction of the exit
+        param location: the destination location
         """
         self._exits[direction] = location
 

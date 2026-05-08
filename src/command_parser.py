@@ -40,7 +40,7 @@ class CommandParser:
         "explain":   ExplainCommand,
     }
 
-    # two-word commands that require one argument (e.g. "take wrench")
+    # two-word commands that require one argument (e.g. "take wrench") everything but "go"
     ONE_ARG_COMMANDS: dict[str, type[Command]] = {
         "take": TakeCommand,
         "use":  UseCommand,
@@ -81,13 +81,13 @@ class CommandParser:
 
         # single-word commands: look, inventory, help, status, quit, explain
         if verb in self.NO_ARG_COMMANDS:
-            return self.NO_ARG_COMMANDS[verb]()
+            return self.NO_ARG_COMMANDS[verb]() #creates a new instance each time
 
         # two-word commands: take, use, talk, drop
         elif verb in self.ONE_ARG_COMMANDS:
             if len(parts) < 2:
                 return UnknownCommand()
-            return self.ONE_ARG_COMMANDS[verb](parts[1])
+            return self.ONE_ARG_COMMANDS[verb](parts[1]) #creates a new instance each time with the argument
 
         # movement: "go <direction>" — separate because argument needs
         # converting from string to Direction enum before passing to MoveCommand

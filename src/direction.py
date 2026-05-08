@@ -19,9 +19,8 @@ class Direction(Enum):
     def from_string(name: str) -> Direction | None:
         """
         Converts a string into a corresponding Direction value.
-
-        :param name: the string representation of a direction
-        :return: the matching Direction, or None if no match is found
+        param name: the string representation of a direction
+        return: the matching Direction, or None if no match is found
         """
         try:
             return Direction(name.strip().lower())

@@ -23,7 +23,7 @@ class Command(ABC):
         Executes the command. Defines the behavior of the command when it is
         triggered during gameplay.
 
-        :param player: the player performing the command
-        :param game: the game instance in which the command is executed
+        param player: the player performing the command
+        param game: the game instance in which the command is executed
         """
         pass

@@ -25,12 +25,12 @@ class Conductor(NPC):
         super().__init__("Conductor")
         self.add_language(Language.FRENCH)
 
-    def talk(self, player: "Player") -> str:
+    def talk(self, player: Player) -> str:
         """
         Returns the dialogue spoken by the conductor when the player talks
         to them.
 
-        :param player: the player interacting with the conductor
-        :return: a message guiding the player further into the game
+        param player: the player interacting with the conductor
+        return: a message guiding the player further into the game
         """
         return "Welcome. The mechanic is ahead in the engine coach."

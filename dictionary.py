@@ -18,15 +18,12 @@ class Dictionary(Item):
     """
 
     def __init__(self):
-        """
-        Constructs a Dictionary item with a predefined name and description.
-        """
         super().__init__(
             "Dictionary",
-            "A French to English dictionary.\n you can talk to any french person."
+            "A French to English dictionary. You can talk to any French person."
         )
 
-    def use(self, player: "Player") -> bool:
+    def use(self, player: Player) -> bool:
         """
         Uses the dictionary in the player's current location.
 
@@ -37,13 +34,11 @@ class Dictionary(Item):
         :return: True if a French-speaking NPC learned English,
                  False if no applicable NPC was found
         """
-        location = player.get_current_location()
-        npcs = location.get_characters()
-        for npc in npcs:
+        for npc in player.get_current_location().get_characters():
             if npc.can_speak(Language.FRENCH):
                 npc.add_language(Language.ENGLISH)
-                print("NPC '" + npc.get_name() + "' can understand English now!")
-                return True   # effective usage
+                print(f"'{npc.get_name()}' can understand English now!")
+                return True
 
         print("No one here speaks French to use the dictionary!")
-        return False   # no effect
+        return False

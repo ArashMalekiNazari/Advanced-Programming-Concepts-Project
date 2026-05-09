@@ -29,15 +29,26 @@ class CommandParser:
     and returns the appropriate Command instance. If the input is invalid
     or unrecognized, an UnknownCommand is returned.
     """
-
-    # VALID COMMANDS
-    VALID = {
-        "go", "look", "inventory", "help", "take",
-        "drop", "talk", "use", "quit", "status", "explain"
+    # Belong to class
+    # single-word commands that require no argument
+    NO_ARG_COMMANDS: dict[str, type[Command]] = {
+        "look":      LookCommand,
+        "inventory": InventoryCommand,
+        "help":      HelpCommand,
+        "status":    StatusCommand,
+        "quit":      QuitCommand,
+        "explain":   ExplainCommand,
     }
 
-    # constructor
-    def __init__(self, game: "Game"):
+    # two-word commands that require one argument (e.g. "take wrench") everything but "go"
+    ONE_ARG_COMMANDS: dict[str, type[Command]] = {
+        "take": TakeCommand,
+        "use":  UseCommand,
+        "talk": TalkCommand,
+        "drop": DropCommand
+    }
+
+    def __init__(self, game: Game):
         """
         Constructs a CommandParser with a reference to the game.
 
@@ -45,8 +56,6 @@ class CommandParser:
         """
         self._game = game
 
-    # Parse a full input line (example: "go north")
-    # Always returns a Command — even if it's an UnknownCommand.
     def parse(self, input_str: str) -> Command:
         """
         Parses a full input line entered by the player.
@@ -61,66 +70,34 @@ class CommandParser:
         :param input_str: the raw input string entered by the player
         :return: a Command corresponding to the parsed input
         """
-        # if the input was space or enter only with no actual character
-        if input_str is None or input_str.strip() == "":
+        # empty or whitespace-only input
+        if input_str.strip() == "":
             return UnknownCommand()
 
-        # to delete the redundant spaces from the beginning and last
-        input_str = input_str.strip().lower()
-
-        # split the input into parts by space(s) e.g: "go north" or "go      north"
-        # -> parts[0] = go, parts[1] = north
-        parts = input_str.split()
+        #remove surrounding spaces, split by any whitespace
+        # e.g. "go      north" -> parts = ["go", "north"]
+        parts = input_str.strip().lower().split()
         verb = parts[0]
 
-        # check if the first part is valid
-        if verb not in CommandParser.VALID:
-            return UnknownCommand()
+        # single-word commands: look, inventory, help, status, quit, explain
+        if verb in self.NO_ARG_COMMANDS:
+            return self.NO_ARG_COMMANDS[verb]() #creates a new instance each time
 
-        # commands with only one part and no need of object
-        if verb == "look":
-            return LookCommand()
-        if verb == "inventory":
-            return InventoryCommand()
-        if verb == "help":
-            return HelpCommand()
-        if verb == "status":
-            return StatusCommand()
-        if verb == "quit":
-            return QuitCommand()
-        if verb == "explain":
-            return ExplainCommand()
-
-        # commands with two parts like go north, take Wrench
-        if verb == "go":
+        # two-word commands: take, use, talk, drop
+        elif verb in self.ONE_ARG_COMMANDS:
             if len(parts) < 2:
                 return UnknownCommand()
-            # fromString("north") -> Direction.NORTH
+            return self.ONE_ARG_COMMANDS[verb](parts[1]) #creates a new instance each time with the argument
+
+        # movement: "go <direction>" — separate because argument needs
+        # converting from string to Direction enum before passing to MoveCommand
+        elif verb == "go":
+            if len(parts) < 2:
+                return UnknownCommand()
             direction = Direction.from_string(parts[1])
-            # if dir was not direction but also not null, fromString gives None
             if direction is None:
                 return UnknownCommand()
             return MoveCommand(direction)
 
-        if verb == "take":
-            if len(parts) < 2:
-                return UnknownCommand()
-            return TakeCommand(parts[1])
-
-        if verb == "use":
-            if len(parts) < 2:
-                return UnknownCommand()
-            return UseCommand(parts[1])
-
-        if verb == "talk":
-            if len(parts) < 2:
-                return UnknownCommand()
-            return TalkCommand(parts[1])
-
-        if verb == "drop":
-            if len(parts) < 2:
-                return UnknownCommand()
-            return DropCommand(parts[1])
-
-        # fallback
-        return UnknownCommand()
+        else:
+            return UnknownCommand()

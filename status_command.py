@@ -9,40 +9,23 @@ if TYPE_CHECKING:
 
 
 class StatusCommand(Command):
-    """
-    The StatusCommand class represents a command that displays
-    the current status of the player.
+    """Displays the player's current location, time, and known languages."""
 
-    This includes the player's location, remaining time,
-    and the languages the player can communicate with.
-    """
-
-    # The action cost associated with executing this command
     COST: int = 0
 
-    def execute(self, player: "Player", game: "Game") -> None:
-        """
-        Executes the status command.
-
-        Prints information about the player's current state, including
-        location, remaining time, and known languages.
-        """
+    def execute(self, player: Player, game: Game) -> None:
         loc = player.get_current_location()
+        languages = player.get_languages()
 
         print("\n===== PLAYER STATUS =====")
-        print("current Location: " + loc.get_name())
-        print("Time Remaining: " + str(player.get_time_remaining()))
+        print(f"Current Location: {loc.get_name()}")
+        print(f"Time Remaining: {player.get_time_remaining()}")
 
-        # Languages player knows
-        # just in case :)
-        if len(player.get_languages()) == 0:
+        if not languages:
             print("Languages you can communicate with: (none)")
         else:
-            line = "Languages you can communicate with: [ "
-            for lang in player.get_languages():
-                line += str(lang) + " "
-            line += "]"
-            print(line)
+            langs = " ".join(str(lang) for lang in languages)
+            print(f"Languages you can communicate with: [ {langs} ]")
 
         print("==========================")
-        game.handle_action_cost(StatusCommand.COST)
+        game.handle_action_cost(self.COST)

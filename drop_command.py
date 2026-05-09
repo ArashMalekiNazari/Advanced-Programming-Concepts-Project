@@ -17,7 +17,6 @@ class DropCommand(Command):
     inventory and places it in the current location.
     """
 
-    # The action cost associated with executing this command
     COST: int = 0
 
     def __init__(self, item_name: str):
@@ -28,7 +27,7 @@ class DropCommand(Command):
         """
         self._item_name = item_name
 
-    def execute(self, player: "Player", game: "Game") -> None:
+    def execute(self, player: Player, game: Game) -> None:
         """
         Executes the drop command.
 
@@ -36,24 +35,21 @@ class DropCommand(Command):
         inventory, remove it, and add it to the current location.
         """
         location = player.get_current_location()
+        inventory = player.get_inventory()
 
-        # Find item safely using Inventory API
-        target_item = player.get_inventory().get_item_by_name(self._item_name)
+        target_item = inventory.get_item_by_name(self._item_name)
 
         if target_item is None:
-            print("There is no item '" + self._item_name + "' in this location.")
+            print(f"There is no item '{self._item_name}' in your inventory.")
             game.handle_action_cost(DropCommand.COST)
             return
 
-        # Try removing from inventory
-        dropped = player.get_inventory().remove_item(target_item)
+        dropped = inventory.remove_item(target_item)
         if not dropped:
-            print("Item is still in your inventory, try again")
+            print("Failed to remove item from inventory, try again.")
             game.handle_action_cost(DropCommand.COST)
             return
 
-        # Return item SAFELY using Location API (not list returned by getter!)
         location.add_item(target_item)
-
-        print("You dropped the " + target_item.get_name() + ".")
+        print(f"You dropped the {target_item.get_name()}.")
         game.handle_action_cost(DropCommand.COST)

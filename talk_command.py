@@ -9,60 +9,35 @@ if TYPE_CHECKING:
 
 
 class TalkCommand(Command):
-    """
-    The TalkCommand class represents a command that allows the player
-    to talk to a non-player character (NPC) in the current location.
+    """Talks to an NPC in the current location if a shared language exists."""
 
-    Communication is only successful if the player understands at least
-    one language spoken by the target character.
-    """
-
-    # The action cost associated with executing this command
     COST: int = 1
 
     def __init__(self, character_name: str):
-        """
-        Constructs a TalkCommand for a specific character.
-
-        :param character_name: the name of the character to talk to
-        """
         self._character_name = character_name
 
-    def execute(self, player: "Player", game: "Game") -> None:
-        """
-        Executes the talk command.
-
-        Searches for a character in the current location,
-        checks whether communication is possible based on shared languages,
-        and displays the character's dialogue if successful.
-        """
+    def execute(self, player: Player, game: Game) -> None:
         location = player.get_current_location()
 
-        # Find the target character
-        target = None
-        for c in location.get_characters():
-            if c.get_name().lower() == self._character_name.lower():
-                target = c
-                break
+        #https://stackoverflow.com/questions/50573100/using-next-on-generator-function
+        target = next(
+            (c for c in location.get_characters() # generator: loop through all characters
+             if c.get_name().lower() == self._character_name.lower()), # filter: name must match
+            None # return None if no match found
+        )
 
         if target is None:
-            print("There is no one named '" + self._character_name + "' here.")
-            game.handle_action_cost(TalkCommand.COST)
+            print(f"There is no one named '{self._character_name}' here.")
+            game.handle_action_cost(self.COST)
             return
 
-        # Check if player understands ANY language the character can speak
-        can_communicate = False
-        for lang in target.get_languages():
-            if player.can_understand(lang):
-                can_communicate = True
-                break
+        can_communicate = any(player.can_understand(lang) for lang in target.get_languages())
 
         if not can_communicate:
-            print(target.get_name() + " speaks these languages: " + str(target.get_languages()))
-            print("You can understand these languages: " + str(player.get_languages()))
-            game.handle_action_cost(TalkCommand.COST)
+            print(f"{target.get_name()} speaks: {target.get_languages()}")
+            print(f"You understand: {player.get_languages()}")
+            game.handle_action_cost(self.COST)
             return
 
-        # Successful communication
         print(target.talk(player))
-        game.handle_action_cost(TalkCommand.COST)
+        game.handle_action_cost(self.COST)

@@ -22,7 +22,7 @@ class Candle(Item):
         """
         super().__init__("Candle", "A candle that helps you see in dark coaches.")
 
-    def use(self, player: "Player") -> bool:
+    def use(self, player: Player) -> bool:
         """
         Uses the candle in the player's current location.
 
@@ -30,8 +30,8 @@ class Candle(Item):
         current location. If the location is dark, it is illuminated and
         the location description is displayed.
 
-        :param player: the player using the candle
-        :return: True if the location was dark and successfully illuminated,
+        param player: the player using the candle
+        return: True if the location was dark and successfully illuminated,
                  False if the location was not dark
         """
         location = player.get_current_location()

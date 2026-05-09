@@ -1,6 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import List, Set, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from language import Language
 
@@ -17,59 +17,55 @@ class NPC(ABC):
     for all specific NPC types.
     """
 
-    # Constructor
     def __init__(self, name: str):
         """
         Constructs an NPC with a given name.
 
-        :param name: the name of the NPC
+        param name: the name of the NPC
         """
         self._name = name
-        # The set of languages the NPC can speak
-        self._languages: Set[Language] = set()
+        self._languages: set[Language] = set()
 
-    # Abstract method(s)
     @abstractmethod
-    def talk(self, player: "Player") -> str:
+    def talk(self, player: Player) -> str:
         """
         Defines how the NPC talks to the player.
-        This behavior must be implemented by subclasses.
+        Must be implemented by subclasses.
 
-        :param player: the player interacting with the NPC
-        :return: a dialogue string spoken by the NPC
+        param player: the player interacting with the NPC
+        return: a dialogue string spoken by the NPC
         """
-        pass
 
-    # Getters
+    # Note: explicit getters are more common in Java.
+    #They are kept here intentionally
+    # to enforce encapsulation in the style of this project.
+
     def get_name(self) -> str:
         """Returns the name of the NPC."""
         return self._name
+
+    def get_languages(self) -> list[Language]:
+        """
+        Returns a copy of the languages spoken by the NPC.
+
+        return: a list of languages
+        """
+        return list(self._languages)
 
     def can_speak(self, lang: Language) -> bool:
         """
         Checks whether the NPC can speak a given language.
 
-        :param lang: the language to check
-        :return: True if the NPC can speak the language, False otherwise
+        param lang: the language to check
+        return: True if the NPC can speak the language, False otherwise
         """
         return lang in self._languages
 
-    def get_languages(self) -> List[Language]:
-        """
-        Returns a list of languages spoken by the NPC.
-
-        :return: a list of languages
-        """
-        return list(self._languages)
-
-    # Learn language (after using dictionary)
     def add_language(self, lang: Language) -> None:
         """
         Adds a new language to the NPC's known languages.
+        Typically called when the player uses the Dictionary item.
 
-        This is typically used when the player enables communication
-        using a dictionary or similar item.
-
-        :param lang: the language to add
+        param lang: the language to add
         """
         self._languages.add(lang)

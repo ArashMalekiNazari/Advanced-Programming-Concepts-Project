@@ -9,38 +9,24 @@ if TYPE_CHECKING:
 
 
 class InventoryCommand(Command):
-    """
-    The InventoryCommand class represents a command that displays
-    the contents of the player's inventory.
+    """Displays the contents of the player's inventory."""
 
-    When executed, this command shows the current items carried
-    by the player along with the inventory capacity.
-    """
-
-    # The action cost associated with executing this command
     COST: int = 0
 
-    def execute(self, player: "Player", game: "Game") -> None:
-        """
-        Executes the inventory command.
-
-        Retrieves the player's inventory and prints all items currently
-        being carried. If the inventory is empty, an appropriate message
-        is displayed.
-        """
+    def execute(self, player: Player, game: Game) -> None:
         inventory = player.get_inventory()
         items = inventory.get_items()
 
         print("\n======= INVENTORY =======")
-        print("Capacity: " + str(len(items)) + " / " + str(inventory.get_capacity()))
+        print(f"Capacity: {len(items)} / {inventory.get_capacity()}")
         print("--------------------------")
 
-        if len(items) == 0:
+        if not items:
             print("Your inventory is empty.")
         else:
             for item in items:
-                print("• " + item.get_name())
+                print(f"• {item.get_name()}")
 
         print("==========================\n")
 
-        game.handle_action_cost(InventoryCommand.COST)
+        game.handle_action_cost(self.COST)

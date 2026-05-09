@@ -31,49 +31,40 @@ class Game:
     """
 
     def __init__(self):
-        """
-        Constructs a new Game instance and initializes the game world.
-        """
-        self._player: Player = None
-        self._win_condition: WinCondition = None
-        self.setup_world()  # initialize the locations, items, characters and player
-        self._command_parser: CommandParser = CommandParser(self)
-        self._game_state: GameState = GameState.PLAYING
+        self._player, self._win_condition = self._setup_world()
+        self._command_parser = CommandParser(self)
+        self._game_state = GameState.PLAYING
 
     def start_game(self) -> None:
         """
         Starts the game by displaying the introduction and entering
         the game loop.
         """
-        # Game introduction
         print("Welcome to the Subway Survival Game!")
-        print("Press enter to continue...")
-        input()
-        # explain the game
-        explain_command = ExplainCommand()
-        explain_command.execute(self._player, self)
-        # Commands introduction
-        print("Press enter to see the valid commands...")
-        input()
-        help_command = HelpCommand()
-        help_command.execute(self._player, self)
-        # going to gameLoop to actually play the game
-        self.game_loop()
+        input("Press enter to continue...")
 
-    def game_loop(self) -> None:
+        ExplainCommand().execute(self._player, self)
+
+        input("Press enter to see the valid commands...")
+
+        HelpCommand().execute(self._player, self)
+
+        self._game_loop()
+
+    def _game_loop(self) -> None:
         """
         Runs the main game loop.
 
         The loop continues while the game state is PLAYING.
         Player commands are read, executed, and checked for win or loss
-        conditions.
+        conditions after each action.
         """
         while self._game_state == GameState.PLAYING:
-            string_command = input()
-            command = self.process_command(string_command)
+            print("================================")
+            command = self._command_parser.parse(input())
             command.execute(self._player, self)
-            self.check_win()
-            self.check_lose()
+            self._check_win()
+            self._check_lose()
 
         if self._game_state == GameState.WON:
             print("You Won!")
@@ -82,95 +73,67 @@ class Game:
         elif self._game_state == GameState.QUIT:
             print("You Quit!\nDo you want to try again?")
 
-    def setup_world(self) -> None:
+    def _setup_world(self) -> tuple[Player, WinCondition]:
         """
         Sets up the game world.
 
-        This includes creating locations, connecting them,
-        placing items and characters, and initializing the player.
+        Creates all locations, connects their exits, places items and
+        characters, and returns the player and win condition.
+
+        return: a tuple of (Player, WinCondition)
         """
         # Create locations
         economy_coach = EconomyCoach()
-        family_coach = FamilyCoach()
-        cafe_coach = CafeCoach()
+        family_coach  = FamilyCoach()
+        cafe_coach    = CafeCoach()
         service_coach = ServiceCoach()
-        engine_coach = EngineCoach()
+        engine_coach  = EngineCoach()
 
-        # Connect exits
-        # cafe-economy-family-service-engine
-        cafe_coach.set_exit(Direction.NORTH, economy_coach)
+        # Connect exits: cafe - economy - family - service - engine
+        cafe_coach.set_exit(Direction.NORTH,    economy_coach)
         economy_coach.set_exit(Direction.SOUTH, cafe_coach)
         economy_coach.set_exit(Direction.NORTH, family_coach)
-        family_coach.set_exit(Direction.SOUTH, economy_coach)
-        family_coach.set_exit(Direction.NORTH, service_coach)
+        family_coach.set_exit(Direction.SOUTH,  economy_coach)
+        family_coach.set_exit(Direction.NORTH,  service_coach)
         service_coach.set_exit(Direction.SOUTH, family_coach)
         service_coach.set_exit(Direction.NORTH, engine_coach)
-        engine_coach.set_exit(Direction.SOUTH, service_coach)
+        engine_coach.set_exit(Direction.SOUTH,  service_coach)
 
-        # Items
-        # Cafe
+        # Place items in locations
         cafe_coach.add_item(AccessCard())
-        # Economy
         economy_coach.add_item(Candle())
-        # Family
         family_coach.add_item(Dictionary())
-        # Service
         service_coach.add_item(Wrench())
 
-        # Characters
-        # Economy
+        # Place NPCs in locations
         economy_coach.add_npc(OldMan())
-        # Service
         service_coach.add_npc(Conductor())
-        # Engine
         engine_coach.add_npc(Mechanic())
 
-        # Player setup
-        self._player = Player(economy_coach)  # starting point
-        # game changer location
-        self._win_condition = engine_coach  # since the player will win here
+        return Player(economy_coach), engine_coach
 
-    # for quitting to set the state into QUIT
     def set_game_state(self, game_state: GameState) -> None:
         """
         Sets the current state of the game.
 
-        :param game_state: the new game state
+        param game_state: the new game state
         """
         self._game_state = game_state
 
-    def process_command(self, string_command: str) -> Command:
-        """
-        Processes a raw command string entered by the player.
-
-        :param string_command: the raw command input
-        :return: the parsed Command object
-        """
-        return self._command_parser.parse(string_command)
-
-    # update time according to the actions
     def handle_action_cost(self, cost: int) -> None:
         """
-        Updates the player's remaining time based on an action cost.
+        Deducts the action cost from the player's remaining time.
 
-        :param cost: the time cost of the action
+        param cost: the time cost of the action
         """
         self._player.set_time_remaining(self._player.get_time_remaining() - cost)
 
-    def check_win(self) -> None:
-        """
-        Checks whether the win condition has been satisfied.
-        If so, the game state is set to WON.
-        """
-        win = self._win_condition.is_satisfied()
-        if win:
+    def _check_win(self) -> None:
+        """Sets game state to WON if the win condition is satisfied."""
+        if self._win_condition.is_satisfied():
             self._game_state = GameState.WON
 
-    def check_lose(self) -> None:
-        """
-        Checks whether the player has lost the game.
-
-        The player loses if the remaining time is zero or less.
-        """
+    def _check_lose(self) -> None:
+        """Sets game state to LOST if the player has run out of time."""
         if self._player.is_out_of_time():
             self._game_state = GameState.LOST

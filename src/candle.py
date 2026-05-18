@@ -14,13 +14,19 @@ class Candle(Item):
 
     When used, the candle is removed from the player's inventory, placed
     in the current location, and may illuminate the coach if it is dark.
+    At 1.0 kg it is light enough to carry alongside heavier tools.
     """
 
     def __init__(self):
         """
-        Constructs a Candle item with a predefined name and description.
+        Constructs a Candle item with a predefined name, description,
+        and physical weight of 1.0 kg.
         """
-        super().__init__("Candle", "A candle that helps you see in dark coaches.")
+        super().__init__(
+            "Candle",
+            "A candle that helps you see in dark coaches.",
+            1.0
+        )
 
     def use(self, player: "Player") -> bool:
         """

@@ -11,18 +11,21 @@ class Item(ABC):
     The Item class represents an abstract item in the game.
 
     Items can be collected, carried in the inventory, and used by the player
-    to interact with the game world.
+    to interact with the game world. Every item has a physical weight that
+    contributes to the player's total carry load.
     """
 
-    def __init__(self, name: str, description: str):
+    def __init__(self, name: str, description: str, weight: float):
         """
-        Constructs an Item with a name and description.
+        Constructs an Item with a name, description, and physical weight.
 
         :param name: the name of the item
         :param description: a textual description of the item
+        :param weight: the physical weight of the item in kilograms
         """
         self._name = name
         self._description = description
+        self._weight = weight
 
     @abstractmethod
     def use(self, player: Player) -> bool:
@@ -47,6 +50,14 @@ class Item(ABC):
     def get_description(self) -> str:
         """Returns the description of the item."""
         return self._description
+
+    def get_weight(self) -> float:
+        """
+        Returns the physical weight of the item in kilograms.
+
+        :return: the item's weight
+        """
+        return self._weight
 
     def __str__(self) -> str:
         return self._name

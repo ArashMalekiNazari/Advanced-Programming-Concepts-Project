@@ -14,13 +14,18 @@ class Dictionary(Item):
     between the player and French-speaking characters.
 
     When used, the dictionary enables a French-speaking NPC in the current
-    location to understand English.
+    location to understand English. At 2.5 kg it is a moderately heavy book.
     """
 
     def __init__(self):
+        """
+        Constructs a Dictionary item with a predefined name, description,
+        and physical weight of 2.5 kg.
+        """
         super().__init__(
             "Dictionary",
-            "A French to English dictionary. You can talk to any French person."
+            "A French to English dictionary. You can talk to any French person.",
+            2.5
         )
 
     def use(self, player: Player) -> bool:

@@ -13,15 +13,18 @@ class Wrench(Item):
 
     This item is specifically required to fix the engine in the Engine Coach,
     which is necessary to satisfy the game's win condition.
+    It is the heaviest item in the game at 4.0 kg.
     """
 
     def __init__(self):
         """
-        Constructs a Wrench item with a predefined name and description.
+        Constructs a Wrench item with a predefined name, description,
+        and physical weight of 4.0 kg.
         """
         super().__init__(
             "Wrench",
-            "A sturdy tool used to tighten bolts and repair machinery."
+            "A sturdy tool used to tighten bolts and repair machinery.",
+            4.0
         )
 
     def use(self, player: "Player") -> bool:
@@ -43,7 +46,6 @@ class Wrench(Item):
 
         # Only works in Engine Coach
         if isinstance(location, EngineCoach):
-            # Fix the engine
             location.fix_engine()
             print("You tighten the bolts carefully with the wrench...")
             print("The engine rumbles back to life! You fixed it!")

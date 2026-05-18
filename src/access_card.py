@@ -16,16 +16,19 @@ class AccessCard(Item):
     Using the access card unlocks an adjacent locked coach, moves the
     player into it immediately, and grants access for a single traversal.
     Once the player exits the coach, it becomes locked again.
+    At just 0.5 kg it is the lightest item in the game.
     """
 
     def __init__(self):
         """
-        Constructs an AccessCard with a predefined name and description.
+        Constructs an AccessCard with a predefined name, description,
+        and physical weight of 0.5 kg.
         """
         super().__init__(
             "AccessCard",
             "You can enter locked coaches by this card.\n"
-            "if you use it you can unlock it forever."
+            "if you use it you can unlock it forever.",
+            0.5
         )
 
     def use(self, player: "Player") -> bool:
@@ -42,7 +45,7 @@ class AccessCard(Item):
         """
         current = player.get_current_location()
 
-        # Cannot unlock from inside
+        # Cannot unlock from inside a locked coach
         if current.is_locked():
             print("You are already inside this coach.")
             return False

@@ -14,7 +14,8 @@ class InventoryCommand(Command):
     the contents of the player's inventory.
 
     When executed, this command shows the current items carried
-    by the player along with the inventory capacity.
+    by the player, their individual weights, and the remaining
+    carry capacity.
     """
 
     # The action cost associated with executing this command
@@ -25,21 +26,22 @@ class InventoryCommand(Command):
         Executes the inventory command.
 
         Retrieves the player's inventory and prints all items currently
-        being carried. If the inventory is empty, an appropriate message
-        is displayed.
+        being carried alongside their weights. Also displays the total
+        weight used versus the maximum carry limit.
         """
         inventory = player.get_inventory()
         items = inventory.get_items()
 
         print("\n======= INVENTORY =======")
-        print("Capacity: " + str(len(items)) + " / " + str(inventory.get_capacity()))
+        print(f"Weight: {inventory.get_current_weight():.1f} / {inventory.MAX_WEIGHT:.1f} kg  "
+              f"(space left: {inventory.get_remaining_weight():.1f} kg)")
         print("--------------------------")
 
         if len(items) == 0:
             print("Your inventory is empty.")
         else:
             for item in items:
-                print("• " + item.get_name())
+                print(f"• {item.get_name():<14} {item.get_weight():.1f} kg")
 
         print("==========================\n")
 

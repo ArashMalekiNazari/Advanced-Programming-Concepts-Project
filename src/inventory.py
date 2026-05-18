@@ -8,73 +8,102 @@ class Inventory:
     """
     The Inventory class represents the collection of items carried by the player.
 
-    The inventory has a fixed capacity and prevents duplicate items
-    based on item names.
+    The inventory is weight-based: each item has a weight attribute, and the
+    total carried weight cannot exceed MAX_WEIGHT. Duplicate items (by name)
+    are also prevented.
     """
 
-    # The maximum number of items the inventory can hold
-    CAPACITY: int = 3
+    # Maximum total weight the inventory can hold
+    MAX_WEIGHT: float = 10.0
 
     def __init__(self):
         """
-        Constructs an empty inventory with a fixed capacity.
+        Constructs an empty, weight-limited inventory.
         """
-        # the items will always reference this list, the list itself will not
-        # change but its components will
+        # The items list is mutated in-place; references to it remain valid.
         self._items: List[Item] = []
+
+    # ------------------------------------------------------------------
+    # Weight helpers
+    # ------------------------------------------------------------------
+
+    def get_current_weight(self) -> float:
+        """
+        Returns the total weight of all items currently in the inventory.
+
+        :return: sum of weights of carried items
+        """
+        return sum(item.get_weight() for item in self._items)
+
+    def get_remaining_weight(self) -> float:
+        """
+        Returns how much more weight the inventory can still hold.
+
+        :return: MAX_WEIGHT minus current weight
+        """
+        return Inventory.MAX_WEIGHT - self.get_current_weight()
+
+    # ------------------------------------------------------------------
+    # Core operations
+    # ------------------------------------------------------------------
 
     def add_item(self, item: Item) -> bool:
         """
-        Adds an item to the inventory if there is available space
+        Adds an item to the inventory if the weight limit allows
         and the item is not already present.
 
         :param item: the item to add
         :return: True if the item was successfully added, False otherwise
         """
-        if len(self._items) >= Inventory.CAPACITY:
-            print("you can't have more than " + str(Inventory.CAPACITY) + " items")
-            return False
         if self.has_item_by_name(item.get_name()):
             print("You already have this item!")
+            return False
+
+        if self.get_current_weight() + item.get_weight() > Inventory.MAX_WEIGHT:
+            print(
+                f"Too heavy! '{item.get_name()}' weighs {item.get_weight()} kg. "
+                f"You can only carry {self.get_remaining_weight():.1f} kg more."
+            )
             return False
 
         self._items.append(item)
         return True
 
-    # remove Item by an object of that item not by its name
     def remove_item(self, item: Item) -> bool:
         """
-        Removes an item from the inventory using the item object.
+        Removes an item from the inventory by matching its name.
 
         :param item: the item to remove
-        :return: True if the item was removed,
-                 False if the item was not found
+        :return: True if the item was removed, False if it was not found
         """
         if not self.has_item_by_name(item.get_name()):
             print("You don't have this item!")
             return False
 
         for i in range(len(self._items)):
-            current = self._items[i]
-            if current.get_name().lower() == item.get_name().lower():
+            if self._items[i].get_name().lower() == item.get_name().lower():
                 self._items.pop(i)
                 return True
         return False
 
-    # Getters by name
+    # ------------------------------------------------------------------
+    # Lookup
+    # ------------------------------------------------------------------
+
     def get_item_by_name(self, item_name: str) -> Optional[Item]:
         """
-        Returns an item from the inventory by its name.
+        Returns an item from the inventory by its name (case-insensitive).
 
-        :param item_name: the name of the item
-        :return: the matching item, or None if not found
+        Uses filter() to locate the matching item, returning None if not found.
+
+        :param item_name: the name of the item to look up
+        :return: the matching Item, or None if not found
         """
-        for item in self._items:
-            if item.get_name().lower() == item_name.lower():
-                return item
-        return None
+        return next(
+            filter(lambda item: item.get_name().lower() == item_name.lower(), self._items),
+            None
+        )
 
-    # Since the identifier of items is their names
     def has_item_by_name(self, name: str) -> bool:
         """
         Checks whether the inventory contains an item with the given name.
@@ -84,22 +113,25 @@ class Inventory:
         """
         return self.get_item_by_name(name) is not None
 
-    # =================================================
-    # get copy of the field(s)
-    # does not return the actual list but a copy for encapsulation
+    # ------------------------------------------------------------------
+    # Getters
+    # ------------------------------------------------------------------
+
     def get_items(self) -> List[Item]:
         """
-        Returns a copy of the list of items in the inventory.
-        This prevents external modification of the internal list.
+        Returns a copy of the inventory item list.
 
-        :return: a copy of the inventory items
-        """
-        return list(self._items)
+        Uses a list comprehension to ensure the internal list cannot be
+        modified through the returned reference.
 
-    def get_capacity(self) -> int:
+        :return: a shallow copy of the inventory items
         """
-        Returns the maximum capacity of the inventory.
+        return [item for item in self._items]
 
-        :return: the inventory capacity
+    def get_capacity(self) -> float:
         """
-        return Inventory.CAPACITY
+        Returns the maximum weight this inventory can hold.
+
+        :return: MAX_WEIGHT
+        """
+        return Inventory.MAX_WEIGHT

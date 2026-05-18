@@ -1,12 +1,11 @@
 from __future__ import annotations
-from abc import ABC #for abstract class
+from abc import ABC
+from direction import Direction
 from item import Item
 from npc import NPC
-from direction import Direction
 
 
-class Location(ABC):# this means we cannot make instance from this class
-
+class Location(ABC):
     """
     The Location class represents a place in the game world.
 
@@ -18,12 +17,12 @@ class Location(ABC):# this means we cannot make instance from this class
         """
         Constructs a Location with the given properties.
 
-        param name: the name of the location
-        param description: the description of the location
-        param locked: whether the location is locked
-        param dark: whether the location is dark
+        :param name: the name of the location
+        :param description: the description of the location
+        :param locked: whether the location is locked
+        :param dark: whether the location is dark
         """
-        #private attributes, we should not touch them outside this class
+        # private attributes, we should not touch them outside this class
         self._name = name
         self._description = description
         self._exits: dict[Direction, Location] = {}
@@ -34,8 +33,6 @@ class Location(ABC):# this means we cannot make instance from this class
         # A temporarily unlocked location will be re-locked automatically
         # once the player leaves it.
         self._temporarily_unlocked = False
-        # Indicates whether the location currently has a light source
-        self._light = False  # if there is something like flashlight or candle
 
     # Core actions
 
@@ -43,24 +40,20 @@ class Location(ABC):# this means we cannot make instance from this class
         """
         Adds an item to the ground of this location.
 
-        param item: the item to add
+        :param item: the item to add
         """
         self._ground_items.append(item)
-
 
     # since the output of input() is a str, it is better to remove the item by its name not object
     def remove_item_by_name(self, item_name: str) -> None:
         """
         Removes an item from the ground by its name.
 
-        param item_name: the name of the item to remove
+        :param item_name: the name of the item to remove
         """
         target = self.get_item_by_name(item_name)
         if target is not None:
             self._ground_items.remove(target)
-
-
-
 
     # avoid searching by the instance's address and instead search by the name
     # of the item (item is equal to another item if they have the same name)
@@ -68,8 +61,8 @@ class Location(ABC):# this means we cannot make instance from this class
         """
         Returns an item from the ground by its name.
 
-        param item_name: the name of the item
-        return: the matching item, or None if not found
+        :param item_name: the name of the item
+        :return: the matching item, or None if not found
         """
         for item in self._ground_items:
             if item.get_name().lower() == item_name.lower():
@@ -84,21 +77,21 @@ class Location(ABC):# this means we cannot make instance from this class
         """
         self._npcs.append(npc)
 
-    def enlighten(self) -> None:
-        """Illuminates the location by enabling a light source."""
-        self._light = True
-
-    # player can see whether the coach is not dark or at least has a light
     def can_see(self) -> bool:
         """
         Checks whether the player can see in this location.
 
-        The player can see if the location is not dark or if a light source
-        is present.
+        If the location is not dark, the player can always see.
+        If it is dark, visibility depends on whether a light source
+        (candle) is currently present on the ground — so picking
+        the candle back up immediately makes the room dark again.
 
         :return: True if the player can see, False otherwise
         """
-        return (not self._dark) or self._light
+        if not self._dark:
+            return True
+        # dynamically check if a light source is currently on the ground
+        return any(item.get_name().lower() == "candle" for item in self._ground_items)
 
     def unlock(self) -> None:
         """Unlocks the location."""
@@ -134,16 +127,18 @@ class Location(ABC):# this means we cannot make instance from this class
         return self._temporarily_unlocked
 
     # for connecting locations
-    def set_exit(self, direction: Direction, location: Location) -> None: #since we are in Location class location: Location would cause error
+    def set_exit(self, direction: Direction, location: Location) -> None:
         """
         Sets an exit from this location in a given direction.
 
-        param direction: the direction of the exit
-        param location: the destination location
+        :param direction: the direction of the exit
+        :param location: the destination location
         """
         self._exits[direction] = location
 
-    # Getters
+    # Note: explicit getters are more common in Java.
+    # In Python, @property is preferred. They are kept here intentionally
+    # to enforce encapsulation in the style of this project.
 
     def get_name(self) -> str:
         """Returns the name of the location."""

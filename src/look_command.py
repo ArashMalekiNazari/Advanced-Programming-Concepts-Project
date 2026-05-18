@@ -18,10 +18,9 @@ class LookCommand(Command):
     and available exits, provided the player can see.
     """
 
-    # The action cost associated with executing this command
     COST: int = 0
 
-    def execute(self, player: "Player", game: "Game") -> None:
+    def execute(self, player: Player, game: Game) -> None:
         """
         Executes the look command.
 
@@ -30,26 +29,17 @@ class LookCommand(Command):
         about the location.
         """
         location = player.get_current_location()
+
+        # can_see() returns True if the location is not dark,
+        # or if a candle is currently present on the ground
         if not location.can_see():
-            print("this coach is dark! Maybe you need a light to see what's here!")
+            print("This coach is dark! Maybe you need a light to see what's here!")
             return
 
-        # if the location itself is dark only if candle is inside this
-        # location, the coach will be visible
-        if location.is_dark():
-            light = False
-            for item in location.get_ground_items():
-                if item.get_name().lower() == "candle":
-                    light = True
-                    break
-            if not light:
-                print("You need a light to see what's here!")
-                return
-
-        print("location:\n" + location.get_name())
-        print("Description:\n" + location.get_description())
-        print("Ground Items:\n" + location.show_ground_items())
-        print("Characters:\n" + location.show_characters())
-        print("Exits:\n" + location.show_exits())
+        print(f"Location:\n{location.get_name()}")
+        print(f"Description:\n{location.get_description()}")
+        print(f"Ground Items:\n{location.show_ground_items()}")
+        print(f"Characters:\n{location.show_characters()}")
+        print(f"Exits:\n{location.show_exits()}")
 
         game.handle_action_cost(LookCommand.COST)
